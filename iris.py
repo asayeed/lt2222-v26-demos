@@ -23,6 +23,9 @@ if __name__ == "__main__":
     scaler = MinMaxScaler((-1, 1))
     X = iris.data.features 
     y = iris.data.targets
+    classes = list(set(iris.data.targets['class']))
+    y['class'] = iris.data.targets.apply(lambda x: classes.index(x['class']), axis=1)
+    
     scaler.fit(X)
     X_scaled = scaler.transform(X)
     X_scaled = pd.DataFrame(X_scaled, index=X.index, columns=X.columns)
@@ -35,5 +38,9 @@ if __name__ == "__main__":
     y_train = y['class'][X_train.index]
     y_test = y['class'][X_test.index]
 
+    
+    
     print("training size: {} testing size: {}".format(len(X_train), len(X_test)))
+
+    model = train(X_train, y_train)
     
