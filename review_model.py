@@ -35,7 +35,7 @@ class ReviewModel(nn.Module):
 
 def train(inputfile, inputsize=100, hiddensize=50, epochs=10):
     review_dataset = ReviewDataset(inputfile)
-    review_loader
+    review_loader = DataLoader(review_dataset)
     model = ReviewModel(inputsize, hiddensize)
     loss_fn = nn.BCELoss()
     optimizer = optim.Adam(model.parameters())
