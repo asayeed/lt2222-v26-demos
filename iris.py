@@ -1,11 +1,13 @@
 import os
 import sys
-from irismodel import IrisModel, train
+from irismodel import IrisModel, train, test
 import pickle
 import pandas as pd
 from argparse import ArgumentParser
 from sklearn.preprocessing import MinMaxScaler
 from random import choices, sample
+from torcheval.metrics.functional import multiclass_accuracy, multiclass_confusion_matrix
+import torch
 
 if __name__ == "__main__":
     argparser = ArgumentParser(
@@ -42,5 +44,11 @@ if __name__ == "__main__":
     
     print("training size: {} testing size: {}".format(len(X_train), len(X_test)))
 
-    model = train(X_train, y_train)
+    model = train(X_train, y_train, epochs=25)
+
+    outputs = test(model, X_test)
+    accuracy = multiclass_accuracy(torch.stack(outputs), torch.LongTensor(y_test.to_numpy()))
+    print(accuracy)
+    cm = multiclass_confusion_matrix(torch.stack(outputs), torch.LongTensor(y_test.to_numpy()), 3)
+    print(cm)
     
