@@ -24,14 +24,16 @@ class ReviewModel(nn.Module):
     def __init__(self, inputsize=100, hiddensize=50):
         super(ReviewModel, self).__init__()
         self.linear0 = nn.Linear(inputsize, hiddensize)
+        self.dropout0 = nn.Dropout(0.03)
         self.tanh = nn.Tanh()
         self.linear1 = nn.Linear(hiddensize, hiddensize)
-        self.relu = nn.Tanh()
+        self.relu = nn.ReLU()
         self.linear2 = nn.Linear(hiddensize, 1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, data):
         output = self.linear0(data)
+        output = self.dropout0(output)
         output = self.tanh(output)
         output = self.linear1(output)
         output = self.relu(output)
@@ -50,7 +52,7 @@ def train(inputfile, inputsize=100, hiddensize=50, batch_size=5, epochs=10):
         for j, batch in enumerate(tqdm.tqdm(review_loader)):
             optimizer.zero_grad()
             X, y = batch
-            output = torch.reshape(model(X), (5,))
+            output = torch.reshape(model(X), (batch_size,))
             y = y.float()
             #print("output {} y {} y type {}".format(output, y, type(y)))
             loss = loss_fn(output, y)
@@ -60,5 +62,21 @@ def train(inputfile, inputsize=100, hiddensize=50, batch_size=5, epochs=10):
         print(loss)
 
     return model
+
+def test(model, inputfile):
+    review_dataset = ReviewDataset(inputfile)
+    review_loader = DataLoader(review_dataset, batch_size=1, shuffle=False)
+
+    model.eval()
+    results = []
+    with torch.no_grad():
+        for j, item in enumerate(tqdm.tqdm(review_loader)):
+            X, y = item
+            output = torch.reshape(model(X), (1,))
+            answer = 1 if output > 0.5 else 0
+            results.append(answer)
+
+    return results
+
 
     
